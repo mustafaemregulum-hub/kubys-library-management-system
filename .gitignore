@@ -1,0 +1,16 @@
+# Build çıktıları
+build/
+cmake-build-*/
+*.exe
+*.o
+*.obj
+*.bin
+
+# IDE / editör dosyaları
+.vscode/
+.idea/
+*.user
+
+# İşletim sistemi dosyaları
+.DS_Store
+Thumbs.db
