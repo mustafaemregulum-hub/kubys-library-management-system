@@ -1,6 +1,7 @@
 #include "arka_plan_isci.h"
 
 #include <QFile>
+#include <QMetaObject>
 #include <QStringList>
 #include <QTextStream>
 #include <QThread>
@@ -144,10 +145,13 @@ void ArkaPlanIsci::gecikmeRaporuOlustur(OduncListesi oduncler) {
 
     std::vector<QString> raporSatirlari;
 
+    // std::thread icinden dogrudan emit yapmak Qt thread modeliyle uyumsuz oldugundan
+    // QMetaObject::invokeMethod ile Qt::QueuedConnection kullanilarak sinyal
+    // guvenli sekilde ana event loop'a iletilmektedir.
     std::thread raporIsParcasi([this, &oduncler, &raporSatirlari, toplam]() {
         for (int i = 0; i < toplam; ++i) {
             if (iptalIstendi.load()) {
-                emit iptalEdildi();
+                QMetaObject::invokeMethod(this, "iptalEdildi", Qt::QueuedConnection);
                 return;
             }
 
@@ -167,7 +171,12 @@ void ArkaPlanIsci::gecikmeRaporuOlustur(OduncListesi oduncler) {
             }
 
             const int yuzde = std::clamp(((i + 1) * 100) / toplam, 0, 100);
-            emit ilerlemeGuncellendi(yuzde);
+            QMetaObject::invokeMethod(
+                this,
+                "ilerlemeGuncellendi",
+                Qt::QueuedConnection,
+                Q_ARG(int, yuzde)
+            );
 
             std::this_thread::sleep_for(std::chrono::milliseconds(80));
         }

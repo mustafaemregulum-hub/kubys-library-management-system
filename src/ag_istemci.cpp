@@ -11,7 +11,8 @@ AgIstemci::AgIstemci(QObject* parent)
     yenidenBaglanmaZamani->setInterval(3000);
 
     connect(soket, &QTcpSocket::connected, this, [this]() {
-        yenidenBaglanmaAktif = true;
+        // yenidenBaglanmaAktif baglan() fonksiyonunda zaten true olarak set ediliyor;
+        // burada tekrar set etmek gereksiz ve yanilticiydi.
         yenidenBaglanmaZamani->stop();
 
         emit baglandi();
